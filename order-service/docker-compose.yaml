@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  order-service:
+    container_name: order-service
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://postgres:rahasia@product-db:5432/order_service?schema=public
+    restart: always
+    networks:
+      - api-server
+    volumes:
+      - /src:/usr/src/app/src
+networks:
+  api-server:
+    external: true

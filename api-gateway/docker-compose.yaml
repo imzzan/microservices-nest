@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  api-gateway:
+    container_name: api-gateway
+    build: .
+    networks:
+      - api-server
+    ports:
+      - 3000:3000
+    restart: always
+networks:
+  api-server:
+    external: true
+volumes:
+  pgdata: {}

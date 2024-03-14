@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  product-service:
+    container_name: product-service
+    build: .
+    environment:
+      - DATABASE_URL=mysql://root:rahasia@product-db:3306/product-service
+    networks:
+      - api-server
+    depends_on:
+      - product-db
+    restart: always
+  product-db:
+    container_name: product-db
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=rahasia
+    volumes:
+      - mysqldata:/etc/mysql/my.cnf
+    networks:
+      - api-server
+networks:
+  api-server:
+    external: true
+volumes:
+  mysqldata: {}

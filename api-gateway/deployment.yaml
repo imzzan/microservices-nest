@@ -1,0 +1,69 @@
+# Configurasi POD
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  api-gateaway
+  namespace: default
+  labels:
+    app:  api-gateaway
+spec:
+  selector:
+    matchLabels:
+      app: api-gateaway
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  api-gateaway
+    spec:
+      containers:
+        - name:  api-gateaway
+          image:  api-gateaway:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            - name: RABBIT_URL
+              value: "amqp://rabbit-server:5672"
+          volumeMounts:
+            - name:  config-ssh
+              mountPath:  /var/secret/ssh
+          ports:
+            - containerPort:  3000
+      volumes:
+        - name:  config-ssh
+          secret:
+            secretName: api-gateaway
+
+---
+# Konfigurasi Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateaway
+  namespace: default
+spec:
+  selector:
+    app: api-gateaway
+  type: ClusterIP
+  sessionAffinity: None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+  - name: applikasi-nginx
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+    # # If you set the `spec.type` field to `NodePort` and you want a specific port number,
+    # # you can specify a value in the `spec.ports[*].nodePort` field.
+    # nodePort: 30001
